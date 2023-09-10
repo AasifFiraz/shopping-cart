@@ -1,0 +1,6 @@
+{
+  "/userRatings": "/users/rating",
+  "/users/rating/:userId": "/userRatings?userId=:userId",
+  "/users/rating/update/:id": "/userRatings/:id",
+  "/users/rating": "/userRatings"
+}
