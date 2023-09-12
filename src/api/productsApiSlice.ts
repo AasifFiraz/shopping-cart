@@ -35,6 +35,12 @@ export interface Cart {
   totalDiscount?: number;
 }
 
+export interface Order {
+  id?: string,
+  userId?: string;
+  orderItems: Array<CartItems>
+}
+
 export const apiSlice = createApi({
   reducerPath: "product",
   baseQuery: baseQueryWithReauth,

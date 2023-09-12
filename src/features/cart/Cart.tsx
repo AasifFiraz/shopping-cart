@@ -1,30 +1,38 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../store/store";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
+import RemoveIcon from "@mui/icons-material/Remove";
 import {
-  Cart,
-  Product,
-  useLazyGetProductQuery,
-} from "../../api/productsApiSlice";
-import { useUpdateUserCartMutation, useDeleteUserCartMutation } from "../../api/productsApiSlice";
-import {
+  Backdrop,
+  Box,
+  Button,
+  Fade,
   Grid,
+  IconButton,
+  Modal,
   Paper,
   Typography,
-  IconButton,
-  Button, Modal,
-  Fade,
-  Box,
-  Backdrop
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import CloseIcon from "@mui/icons-material/Close";
-import { capitalizeFirstLetterOfEachWord } from "../product/Product";
-import { useNavigate } from "react-router";
 import { styled } from "@mui/material/styles";
-import { resetCartData, incrementCartData, decrementCartData } from "./cartSlice";
+import React, { useContext, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
+import {
+  Cart,
+  Order,
+  Product,
+  useDeleteUserCartMutation,
+  useLazyGetProductQuery,
+  useUpdateUserCartMutation,
+} from "../../api/productsApiSlice";
 import UserContext from "../../contexts/UserContext";
+import { RootState } from "../../store/store";
+import { setOrder } from "../Order/orderSlice";
+import { capitalizeFirstLetterOfEachWord } from "../product/Product";
+import {
+  decrementCartData,
+  incrementCartData,
+  resetCartData
+} from "./cartSlice";
 
 const CartComponent: React.FC = () => {
   const navigate = useNavigate();
@@ -161,14 +169,21 @@ const CartComponent: React.FC = () => {
 
   const handleModalOpen = () => setOpen(true);
   const handleModalClose = () => {
-    setOpen(false)
+    setOpen(false);
     if (!user.auth) {
+      const orders: Array<Order> = [
+        {
+          userId: user.id,
+          orderItems: cartItems,
+        },
+      ];
+      dispatch(setOrder(orders));
       dispatch(resetCartData());
     } else {
       triggerUserCartDeleteMutation(cart?.id);
     }
-    navigate("/")
-  }
+    navigate("/");
+  };
 
   return (
     <>

@@ -1,7 +1,5 @@
-import { styled } from "@mui/material/styles";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import debounce from "lodash/debounce";
 import {
   Box,
   Container,
@@ -10,16 +8,18 @@ import {
   Typography,
 } from "@mui/material";
 import Badge from "@mui/material/Badge";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { styled } from "@mui/material/styles";
+import debounce from "lodash/debounce";
 import { useContext, useEffect, useMemo } from "react";
-import UserContext from "../contexts/UserContext";
-import { useLazyGetSavedCartsQuery } from "../api/productsApiSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../store/store";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useLazyGetSavedCartsQuery } from "../api/productsApiSlice";
+import UserContext from "../contexts/UserContext";
+import { setCart, setCartError, setCartLoading } from "../features/cart/cartSlice";
 import {
   setSearchKeyword,
 } from "../features/product/productSlice";
-import { setCartError, setCartLoading, setCart } from "../features/cart/cartSlice";
+import { RootState } from "../store/store";
 
 const LoginText = styled(Link)(() => ({
   fontWeight: "bold",
