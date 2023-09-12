@@ -5,7 +5,7 @@ import { User } from "../api/userApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { clearUserSession, setUserSession } from "../features/login/userSlice";
-import { resetOrderData } from "../features/product/productSlice";
+import { resetCartData } from "../features/cart/cartSlice";
 
 type UserProviderProps = {
   children: ReactNode;
@@ -45,14 +45,14 @@ const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       email: user.email,
       auth: true
     }));
-    dispatch(resetOrderData());
+    dispatch(resetCartData());
     navigate('/');
   };
 
   // Clear session in store & context on logout
   const logout = () => {
     dispatch(clearUserSession());
-    dispatch(resetOrderData());
+    dispatch(resetCartData());
     setUser({
       username: "",
       auth: false

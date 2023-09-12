@@ -11,20 +11,15 @@ import {
 } from "@mui/material";
 import Badge from "@mui/material/Badge";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import UserContext from "../contexts/UserContext";
-import {
-  useLazyGetOrderedProductsQuery,
-  useLazyGetProductsQuery,
-} from "../api/productsApiSlice";
+import { useLazyGetSavedCartsQuery } from "../api/productsApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import {
-  setOrderData,
-  setOrderError,
-  setOrderLoading,
   setSearchKeyword,
 } from "../features/product/productSlice";
+import { setCartError, setCartLoading, setCart } from "../features/cart/cartSlice";
 
 const LoginText = styled(Link)(() => ({
   fontWeight: "bold",
@@ -37,11 +32,11 @@ const LoginText = styled(Link)(() => ({
 const HomePageLayout = () => {
   const { user, logout } = useContext(UserContext);
   const dispatch = useDispatch();
-  const orderStatus = useSelector((state: RootState) => state.products.status);
-  const orderData = useSelector((state: RootState) => state.products.orders);
+  const cartStatus = useSelector((state: RootState) => state.carts.status);
+  const savedCarts = useSelector((state: RootState) => state.carts.savedCarts);
   const lastLogin = useSelector((state: RootState) => state.users.lastLogin);
-  const [triggerGetOrdersQuery, { data: orderedProducts, isLoading, error }] =
-    useLazyGetOrderedProductsQuery();
+  const [triggerGetCartsQuery, { data: carts, isLoading, error }] =
+  useLazyGetSavedCartsQuery();
 
   const navigate = useNavigate();
 
@@ -49,46 +44,46 @@ const handleChangeSearch = debounce((value: string) => {
   dispatch(setSearchKeyword(value));
 }, 300);
 
-  const currentUserOrder = useMemo(
-    () => orderData?.find((order) => order.userId === user.id),
-    [orderData, user.id]
+  const currentUserCart = useMemo(
+    () => savedCarts?.find((cart) => cart.userId === user.id),
+    [savedCarts, user.id]
   );
 
   const totalQuantity = useMemo(() => {
-    const orderItems = currentUserOrder?.orderItems;
+    const cartItems = currentUserCart?.cartItems;
     return (
-      orderItems?.reduce((accum, currItem) => accum + currItem.quantity, 0) || 0
+      cartItems?.reduce((accum, currItem) => accum + currItem.quantity, 0) || 0
     );
-  }, [currentUserOrder]);
+  }, [currentUserCart]);
 
-  const setAndGetOrders = () => {
+  const setAndGetCarts = () => {
     if (isLoading) {
-      dispatch(setOrderLoading());
-    } else if (orderedProducts) {
-      dispatch(setOrderData(orderedProducts));
+      dispatch(setCartLoading());
+    } else if (carts) {
+      dispatch(setCart(carts));
     } else if (error) {
-      dispatch(setOrderError(error));
+      dispatch(setCartError(error));
     }
   };
 
   useEffect(() => {
-    if (user.id && orderStatus !== "succeeded") {
-      triggerGetOrdersQuery(user.id);
+    if (user.id && cartStatus !== "succeeded") {
+      triggerGetCartsQuery(user.id);
     }
-  }, [orderStatus, user.id]);
+  }, [cartStatus, user.id]);
 
   useEffect(() => {
     if (user.id) {
-      setAndGetOrders();
+      setAndGetCarts();
     }
-  }, [isLoading, orderedProducts, error, user.id]);
+  }, [isLoading, carts, error, user.id]);
 
   useEffect(() => {
     if (lastLogin && user.id) {
-      triggerGetOrdersQuery(user.id);
-      setAndGetOrders();
+      triggerGetCartsQuery(user.id);
+      setAndGetCarts();
     }
-  }, [lastLogin, triggerGetOrdersQuery, user.id]);
+  }, [lastLogin, triggerGetCartsQuery, user.id]);
 
   return (
     <Container sx={{ padding: 0 }}>

@@ -3,22 +3,22 @@ import { Box, Grid } from "@mui/material";
 import { useContext, useEffect, useMemo } from "react";
 import UserContext from "../../contexts/UserContext";
 import {
-  Order,
+  Cart,
   Product,
-  useCreateUserOrdersMutation,
   useLazyGetProductsQuery,
-  useUpdateUserOrdersMutation,
 } from "../../api/productsApiSlice";
+import { useCreateUserCartMutation, useUpdateUserCartMutation } from "../../api/productsApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import { setOrderData, setProducts } from "../../features/product/productSlice";
+import { setProducts } from "../../features/product/productSlice";
+import { setCart } from "../cart/cartSlice";
 
 export default function Dashboard() {
   const { user } = useContext(UserContext);
   const dispatch = useDispatch();
-  const orderData = useSelector((state: RootState) => state.products.orders);
-  const [triggerUserOrdersUpdateMutation] = useUpdateUserOrdersMutation();
-  const [triggerCreateUserOrderMutation] = useCreateUserOrdersMutation();
+  const savedCarts = useSelector((state: RootState) => state.carts.savedCarts);
+  const [triggerUserCartsUpdateMutation] = useUpdateUserCartMutation();
+  const [triggerCreateUserCartMutation] = useCreateUserCartMutation();
   const [triggerGetProductsQuery, { data: products }] =
     useLazyGetProductsQuery();
   const searchKeyword = useSelector(
@@ -41,16 +41,16 @@ export default function Dashboard() {
   }, [products, searchKeyword]);
 
   const handleAddToCart = (product: Product): void => {
-    const order = orderData ? orderData[0] : null;
-    const currentOrderedProducts = (order && order.orderItems) || [];
-    const existingProductOrder = currentOrderedProducts.find(
+    const cart = savedCarts ? savedCarts[0] : null;
+    const currentUserCarts = (cart && cart.cartItems) || [];
+    const existingProductCart = currentUserCarts.find(
       (item) => item.productId === product.id
     );
 
-    let updatedOrderItems;
+    let updatedCartItems;
 
-    if (existingProductOrder) {
-      updatedOrderItems = currentOrderedProducts.map((item) => {
+    if (existingProductCart) {
+      updatedCartItems = currentUserCarts.map((item) => {
         if (item.productId === product.id) {
           return {
             ...item,
@@ -61,8 +61,8 @@ export default function Dashboard() {
         return item;
       });
     } else {
-      updatedOrderItems = [
-        ...currentOrderedProducts,
+      updatedCartItems = [
+        ...currentUserCarts,
         {
           productId: product.id,
           quantity: 1,
@@ -71,19 +71,19 @@ export default function Dashboard() {
       ];
     }
 
-    const productOrder: Order = {
-      ...order,
-      id: order?.id,
+    const productCart: Cart = {
+      ...cart,
+      id: cart?.id,
       userId: user.id,
-      orderItems: updatedOrderItems,
+      cartItems: updatedCartItems,
     };
 
     if (!user.auth) {
-      dispatch(setOrderData([productOrder]));
-    } else if (order?.userId) {
-      triggerUserOrdersUpdateMutation(productOrder);
+      dispatch(setCart([productCart]));
+    } else if (cart?.userId) {
+      triggerUserCartsUpdateMutation(productCart);
     } else {
-      triggerCreateUserOrderMutation(productOrder);
+      triggerCreateUserCartMutation(productCart);
     }
   };
 

@@ -2,48 +2,44 @@ import React, { useContext, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../store/store";
 import {
-  Order,
+  Cart,
   Product,
-  useDeleteUserOrderMutation,
   useLazyGetProductQuery,
-  useUpdateUserOrdersMutation,
 } from "../../api/productsApiSlice";
+import { useUpdateUserCartMutation, useDeleteUserCartMutation } from "../../api/productsApiSlice";
 import {
   Grid,
   Paper,
   Typography,
   IconButton,
-  Button,
-  Alert,
-  Modal,
+  Button, Modal,
   Fade,
   Box,
-  Backdrop,
+  Backdrop
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import CloseIcon from "@mui/icons-material/Close";
 import { capitalizeFirstLetterOfEachWord } from "../product/Product";
 import { useNavigate } from "react-router";
 import { styled } from "@mui/material/styles";
-import { decrementOrderData, incrementOrderData, resetOrderData } from "../product/productSlice";
+import { resetCartData, incrementCartData, decrementCartData } from "./cartSlice";
 import UserContext from "../../contexts/UserContext";
 
-const Cart: React.FC = () => {
+const CartComponent: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  const order = useSelector(
-    (state: RootState) => state.products.orders && state.products.orders[0]
+  const cart = useSelector(
+    (state: RootState) => state.carts.savedCarts && state.carts.savedCarts[0]
   );
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
   const [triggerGetProductQuery] = useLazyGetProductQuery();
-  const [triggerUserOrdersUpdateMutation] = useUpdateUserOrdersMutation();
-  const [triggerUserOrderDeleteMutation] = useDeleteUserOrderMutation();
+  const [triggerUserCartsUpdateMutation] = useUpdateUserCartMutation();
+  const [triggerUserCartDeleteMutation] = useDeleteUserCartMutation();
   const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
 
-  const orderItems = (order && order.orderItems) || [];
+  const cartItems = (cart && cart.cartItems) || [];
 
   const subtotal = fetchedProducts.reduce(
     (acc, product) => acc + product.price * product.quantity,
@@ -83,7 +79,7 @@ const Cart: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       const products: Product[] = [];
-      for (const item of orderItems) {
+      for (const item of cartItems) {
         const productResultArray = (await triggerGetProductQuery(
           item.productId
         ).unwrap()) as unknown as Array<Product>;
@@ -94,72 +90,72 @@ const Cart: React.FC = () => {
     };
 
     fetchProducts();
-  }, [orderItems]);
+  }, [cartItems]);
 
   const handleProductDelete = (productId: Product["id"]) => {
-    const updatedProducts = orderItems.filter(
-      (orderItem) => orderItem.productId !== productId
+    const updatedProducts = cartItems.filter(
+      (cartItem) => cartItem.productId !== productId
     );
 
-    const productOrder: Order = {
-      ...order,
-      orderItems: updatedProducts,
+    const productCart: Cart = {
+      ...cart,
+      cartItems: updatedProducts,
     };
 
-    triggerUserOrdersUpdateMutation(productOrder);
+    triggerUserCartsUpdateMutation(productCart);
   };
 
   const handleProductIncrement = (productId: Product["id"]) => {
     if (!user.auth) {
-      dispatch(incrementOrderData(productId));
+      dispatch(incrementCartData(productId));
       return;
     }
 
-    const productIndex = order?.orderItems?.findIndex(
+    const productIndex = cart?.cartItems?.findIndex(
       (item) => item.productId === productId
     );
 
     if (productIndex !== undefined && productIndex !== -1) {
-      const updatedOrder: Order = {
-        ...order,
-        orderItems: order?.orderItems?.map((item, index) =>
+      const updatedCart: Cart = {
+        ...cart,
+        cartItems: cart?.cartItems?.map((item, index) =>
           index === productIndex
             ? { ...item, quantity: item.quantity + 1 }
             : item
         ),
       };
-      triggerUserOrdersUpdateMutation(updatedOrder);
+      triggerUserCartsUpdateMutation(updatedCart);
     } else {
-      console.error("Product not found in order.");
+      console.error("Product not found in cart.");
     }
   };
 
   const handleProductDecrement = (productId: Product["id"]) => {
     if (!user.auth) {
-      dispatch(decrementOrderData(productId));
+      dispatch(decrementCartData(productId));
       return;
     }
 
-    const productIndex = order?.orderItems?.findIndex(
+    const productIndex = cart?.cartItems?.findIndex(
       (item) => item.productId === productId
     );
     if (productIndex !== undefined && productIndex !== -1) {
-      const product = order?.orderItems![productIndex];
+      const product = cart?.cartItems![productIndex];
       if (product?.quantity === 1) {
         handleProductDelete(productId);
       } else {
-        const updatedOrder: Order = {
-          ...order,
-          orderItems: order?.orderItems?.map((item, index) =>
+        const updatedCart: Cart = {
+          ...cart,
+          cartItems: cart?.cartItems?.map((item, index) =>
             index === productIndex
               ? { ...item, quantity: item.quantity - 1 }
               : item
           ),
         };
-        triggerUserOrdersUpdateMutation(updatedOrder);
+        triggerUserCartsUpdateMutation(updatedCart);
       }
     } else {
-      console.error("Product not found in order.");
+      console.error("Product not found in cart.");
     }
   };
 
@@ -167,9 +163,9 @@ const Cart: React.FC = () => {
   const handleModalClose = () => {
     setOpen(false)
     if (!user.auth) {
-      dispatch(resetOrderData());
+      dispatch(resetCartData());
     } else {
-      triggerUserOrderDeleteMutation(order?.id);
+      triggerUserCartDeleteMutation(cart?.id);
     }
     navigate("/")
   }
@@ -355,4 +351,4 @@ const Cart: React.FC = () => {
   );
 };
 
-export default Cart;
+export default CartComponent;

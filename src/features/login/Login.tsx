@@ -8,9 +8,7 @@ import {
 import { TextField, Tabs, Tab, Box, Button } from "@mui/material";
 import { TabContext, TabPanel } from "@mui/lab";
 import UserContext from "../../contexts/UserContext";
-import {
-  useCreateUserOrdersMutation,
-} from "../../api/productsApiSlice";
+import { useCreateUserCartMutation } from "../../api/productsApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { nanoid } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
@@ -20,9 +18,9 @@ const Login = () => {
   const { login } = useContext(UserContext);
   const [value, setValue] = useState("login");
   const dispatch = useDispatch();
-  const [triggerCreateUserOrderMutation] = useCreateUserOrdersMutation();
-  const order = useSelector(
-    (state: RootState) => state.products.orders && state.products.orders[0]
+  const [triggerCreateUserCartMutation] = useCreateUserCartMutation();
+  const savedCart = useSelector(
+    (state: RootState) => state.carts.savedCarts && state.carts.savedCarts[0]
   );
   const [loginUser, setLoginUser] = useState<User>({
     username: "",
@@ -64,12 +62,12 @@ const Login = () => {
     await triggerCreateUserMutation(registerUserData);
     if (!isError) {
       login(registerUserData);
-      if (order && !order.userId) {
-        const updatedOrder = {
-          ...order,
+      if (savedCart && !savedCart.userId) {
+        const updatedCart = {
+          ...savedCart,
           userId: registerUserData.id,
         };
-        triggerCreateUserOrderMutation(updatedOrder);
+        triggerCreateUserCartMutation(updatedCart);
       }
     }
     setRegisterUser({ id: "", username: "", password: "", email: "", mobile: "" });

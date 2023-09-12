@@ -5,7 +5,7 @@ import Home from "./features/home/Home";
 import About from "./features/help/Help";
 import HomePageLayout from "./layouts/HomePageLayout";
 import Login from "./features/login/Login";
-import Cart from "./features/cart/Cart";
+import CartComponent from "./features/cart/Cart";
 
 
 export default function AppRoutes() {
@@ -14,7 +14,7 @@ export default function AppRoutes() {
       element: <HomePageLayout/>,
       children: [
         {path: "/", element: <Dashboard/>},
-        {path: "cart", element: <Cart/>},
+        {path: "cart", element: <CartComponent/>},
       ]
     },
     {

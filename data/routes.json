@@ -2,5 +2,8 @@
   "/userRatings": "/users/rating",
   "/users/rating/:userId": "/userRatings?userId=:userId",
   "/users/rating/update/:id": "/userRatings/:id",
-  "/users/rating": "/userRatings"
+  "/users/rating": "/userRatings",
+  "/users/cart/:userId": "/savedCarts?userId=:userId",
+  "/users/cart/update/:id": "/savedCarts/:id",
+  "/users/cart": "/savedCarts"
 }

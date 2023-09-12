@@ -1,5 +1,6 @@
 import { configureStore, ThunkAction, Action, combineReducers } from "@reduxjs/toolkit";
 import { productReducer } from "../features/product/productSlice";
+import { cartReducer } from "../features/cart/cartSlice";
 import appReducer from "../appSlice";
 import { apiSlice as userApiSlice } from "../api/userApiSlice";
 import { apiSlice as ProductApiSlice } from "../api/productsApiSlice";
@@ -19,7 +20,7 @@ import { userReducer } from "../features/login/userSlice";
 const rootPersistConfig = {
   key: 'root',
   storage: storageSession,
-  whitelist: ['users']
+  whitelist: ['users', 'carts']
 }
 
 const productPersistConfig = {
@@ -34,6 +35,7 @@ const rootReducer = combineReducers({
   app: appReducer,
   products: persistedProductReducer,
   users: userReducer,
+  carts: cartReducer,
   [userApiSlice.reducerPath]: userApiSlice.reducer,
   [ProductApiSlice.reducerPath]: ProductApiSlice.reducer,
 })

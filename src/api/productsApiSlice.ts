@@ -22,23 +22,23 @@ export interface UserRating {
   ratedProducts: Array<{ productId: string; rating: number }>;
 }
 
-export type OrderItems = {
+export type CartItems = {
   productId: string;
   priceAtTimeOfPurchase: number;
   quantity: number;
 };
 
-export interface Order {
+export interface Cart {
   id?: string;
   userId?: string;
-  orderItems?: Array<OrderItems>;
+  cartItems?: Array<CartItems>;
   totalDiscount?: number;
 }
 
 export const apiSlice = createApi({
   reducerPath: "product",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ["product", "userRatings", "orders"],
+  tagTypes: ["product", "userRatings", "carts"],
   endpoints: (builder) => ({
     getProducts: builder.query<Array<Product>, number | void>({
       query: (_limit = 10) => ({
@@ -94,35 +94,34 @@ export const apiSlice = createApi({
         throw new Error("Error occured when retrieving user ratings.");
       },
     }),
-    getOrderedProducts: builder.query<Array<Order>, string | undefined>({
+    getSavedCarts: builder.query<Array<Cart>, string | undefined>({
       query: (userId) => ({
-        url: `/orders`,
-        params: { userId },
+        url: `/users/cart/${userId}`,
       }),
-      providesTags: ["orders"],
+      providesTags: ["carts"],
     }),
-    updateUserOrders: builder.mutation<Order, Order>({
-      query: (data: Order) => ({
-        url: `orders/${data.id}`,
+    updateUserCart: builder.mutation<Cart, Cart>({
+      query: (data: Cart) => ({
+        url: `/users/cart/update/${data.id}`,
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: ["orders"],
+      invalidatesTags: ["carts"],
     }),
-    createUserOrders: builder.mutation<Order, Order>({
-      query: (data: Order) => ({
-        url: `orders`,
+    createUserCart: builder.mutation<Cart, Cart>({
+      query: (data: Cart) => ({
+        url: `/users/cart`,
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["orders"],
+      invalidatesTags: ["carts"],
     }),
-    deleteUserOrder: builder.mutation<Order, string | undefined>({
+    deleteUserCart: builder.mutation<Cart, string | undefined>({
       query: (id: string) => ({
-        url: `orders/${id}`,
+        url: `/users/cart/update/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["orders"],
+      invalidatesTags: ["carts"],
     }),
   }),
 });
@@ -135,8 +134,8 @@ export const {
   useLazyGetUserRatingsQuery,
   useUpdateUserRatingMutation,
   useCreateUserRatingMutation,
-  useLazyGetOrderedProductsQuery,
-  useUpdateUserOrdersMutation,
-  useCreateUserOrdersMutation,
-  useDeleteUserOrderMutation,
+  useLazyGetSavedCartsQuery,
+  useUpdateUserCartMutation,
+  useCreateUserCartMutation,
+  useDeleteUserCartMutation
 } = apiSlice;

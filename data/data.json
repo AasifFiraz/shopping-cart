@@ -104,10 +104,10 @@
       "id": "71TgyuA"
     }
   ],
-  "orders": [
+  "savedCarts": [
     {
       "userId": "E12CQp5XK_YTspcBS3CWF",
-      "orderItems": [
+      "cartItems": [
         {
           "productId": "p2",
           "quantity": 2,
@@ -123,7 +123,7 @@
     },
     {
       "userId": "OWR7DbYQtsroHRg7Ze5V6",
-      "orderItems": [
+      "cartItems": [
         {
           "productId": "p3",
           "quantity": 4,
@@ -136,11 +136,6 @@
         }
       ],
       "id": "h3383gj"
-    },
-    {
-      "userId": "user1",
-      "orderItems": [],
-      "id": "A5OGLEw"
     }
   ]
 }
